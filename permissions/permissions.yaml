@@ -1,0 +1,56 @@
+# Permission rules — edit this file, not the code.
+# Restart the agent after changes.
+
+# Gate 1a: Always blocked, no user prompt
+deny_always:
+  - "rm -rf /"
+  - "mkfs"
+  - "dd if=/dev/"
+  - "shutdown"
+  - "reboot"
+  - "> /dev/sda"
+  - "--no-preserve-root"
+
+# Gate 1b: Dangerous binaries — blocked by binary name
+dangerous_binaries:
+  - sudo
+  - su
+  - pkill
+  - killall
+
+# Gate 1c: Dangerous flags for specific binaries
+dangerous_flags:
+  rm:
+    - "-rf"
+    - "-fr"
+    - "--no-preserve-root"
+
+# Gate 1d: Shell injection patterns
+shell_injection_patterns:
+  - "| sh"
+  - "| bash"
+  - "eval "
+  - "$("
+  - "`"
+
+# Gate 2: Require user approval (yellow warning, y/N prompt)
+require_approval_patterns:
+  - "rm "
+  - "> /etc/"
+  - "chmod 777"
+  - "curl "
+  - "wget "
+
+# Skip all permission gates for these tools
+auto_allow_tools:
+  - run_read
+  - run_glob
+
+# Per-tool rate limits (sliding window)
+rate_limits:
+  run_bash:
+    max_calls: 30
+    window_seconds: 60
+  run_write:
+    max_calls: 20
+    window_seconds: 60
